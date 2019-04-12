@@ -29,7 +29,7 @@ typedef struct urlinfo_t
 urlinfo_t *parse_url(char *url)
 {
   // copy the input URL so as not to mutate the original
-  char *hostname = strdup(url);
+  char *hostname;
   char *port;
   char *path;
 
@@ -78,16 +78,16 @@ int send_request(int fd, char *hostname, char *port, char *path)
   ///////////////////
   // IMPLEMENT ME! //
   ///////////////////
-  sprintf(request,
-          "GET /%s HTTP/1.1\n"
-          "Host: %s:%s\n"
-          "Connection: close\n"
-          "\n",
-          path,
-          hostname,
-          port);
+  int req_len = sprintf(request,
+                        "GET /%s HTTP/1.1\n"
+                        "Host: %s:%s\n"
+                        "Connection: close\n"
+                        "\n",
+                        path,
+                        hostname,
+                        port);
 
-  rv = send(fd, request, strlen(request), 0);
+  rv = send(fd, request, req_len, 0);
 
   return rv;
 }
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   // 2. Initialize a socket by calling the `get_socket` function from lib.c
   sockfd = get_socket(urlinfo->hostname, urlinfo->port);
   // 3. Call `send_request` to construct the request and send it
-  int rv = send_request(sockfd, urlinfo->hostname, urlinfo->port, urlinfo->path);
+  send_request(sockfd, urlinfo->hostname, urlinfo->port, urlinfo->path);
   // 4. Call `recv` in a loop until there is no more data to receive from the server. Print the received response to stdout.
   while ((numbytes = recv(sockfd, buf, BUFSIZE - 1, 0)) > 0)
   {
